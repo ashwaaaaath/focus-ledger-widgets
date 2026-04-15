@@ -17,7 +17,7 @@
 
   .dashboard {
     background: linear-gradient(180deg, #1a1410, #1e1812);
-    border-radius: 16px;
+    border-radius: 0;
     padding: 1.5rem;
     border: 1px solid rgba(201, 149, 107, 0.12);
   }
@@ -281,6 +281,9 @@
     <div class="dash-title">📊 Focus Analytics</div>
     <div class="dash-period" id="period"></div>
   </div>
+  <div style="font-size:0.55rem;color:#4a4640;font-family:'JetBrains Mono',monospace;text-align:right;margin-top:-0.5rem;margin-bottom:0.5rem;" id="lastUpdated"></div>
+  <div style="display:none"><!-- placeholder to close extra div -->
+  </div>
 
   <div class="stats-grid">
     <div class="stat-card">
@@ -348,24 +351,22 @@
 </div>
 
 <script>
-// Demo data — replace with real Notion API data when connected
-const demoData = {
-  totalSessions: 24,
-  avgRating: 2.3,
-  flowStates: 8,
-  streak: 5,
-  weeklyByDay: [
-    { day: 'Mon', school: 2, personal: 1, grind: 0 },
-    { day: 'Tue', school: 1, personal: 0, grind: 1 },
-    { day: 'Wed', school: 3, personal: 1, grind: 0 },
-    { day: 'Thu', school: 1, personal: 2, grind: 1 },
-    { day: 'Fri', school: 2, personal: 0, grind: 0 },
-    { day: 'Sat', school: 0, personal: 2, grind: 2 },
-    { day: 'Sun', school: 0, personal: 1, grind: 1 },
-  ],
-  byType: { school: 12, personal: 7, grind: 5 },
-  last14Days: [0, 2, 1, 3, 0, 2, 4, 1, 0, 3, 2, 1, 2, 3]
-};
+// Fetch live data from data.json (updated by GitHub Actions from Notion)
+async function loadData() {
+  try {
+    const resp = await fetch('data.json?t=' + Date.now());
+    if (!resp.ok) throw new Error('Failed to fetch');
+    return await resp.json();
+  } catch (e) {
+    console.warn('Could not load data.json, using empty state:', e);
+    return {
+      totalSessions: 0, avgRating: 0, flowStates: 0, streak: 0,
+      weeklyByDay: ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].map(d => ({day:d,school:0,personal:0,grind:0})),
+      byType: {school:0, personal:0, grind:0},
+      last14Days: Array(14).fill(0)
+    };
+  }
+}
 
 function animateValue(el, target, suffix = '') {
   let current = 0;
@@ -482,7 +483,15 @@ function render(data) {
   document.getElementById('streakCount').textContent = data.streak + '-day streak';
 }
 
-render(demoData);
+loadData().then(data => {
+  render(data);
+  if (data.lastUpdated && data.lastUpdated !== 'awaiting first sync') {
+    const d = new Date(data.lastUpdated);
+    document.getElementById('lastUpdated').textContent = 'synced ' + d.toLocaleString();
+  } else {
+    document.getElementById('lastUpdated').textContent = 'awaiting first sync from Notion';
+  }
+});
 </script>
 </body>
 </html>

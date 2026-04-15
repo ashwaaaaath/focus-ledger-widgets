@@ -1,0 +1,39 @@
+name: Sync Notion Data
+
+on:
+  schedule:
+    # Runs every 30 minutes
+    - cron: '*/30 * * * *'
+  workflow_dispatch: # Manual trigger
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Fetch Notion Data
+        env:
+          NOTION_API_KEY: ${{ secrets.NOTION_API_KEY }}
+          DATABASE_ID: c17119304e61457488adc959d929969d
+        run: |
+          # Query the Deep Work Ledger database
+          curl -s -X POST "https://api.notion.com/v1/databases/${DATABASE_ID}/query" \
+            -H "Authorization: Bearer ${NOTION_API_KEY}" \
+            -H "Notion-Version: 2022-06-28" \
+            -H "Content-Type: application/json" \
+            -d '{"page_size": 100}' \
+            -o raw_data.json
+
+          # Process with a small Python script
+          python3 process_data.py
+
+      - name: Commit and push if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data.json
+          git diff --staged --quiet || (git commit -m "Update focus data $(date -u +%Y-%m-%dT%H:%M:%SZ)" && git push)
