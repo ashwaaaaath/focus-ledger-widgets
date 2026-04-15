@@ -1,18 +1,72 @@
 {
-  "totalSessions": 0,
+  "totalSessions": 3,
   "avgRating": 0,
   "flowStates": 0,
-  "streak": 0,
+  "streak": 1,
   "weeklyByDay": [
-    {"day": "Mon", "school": 0, "personal": 0, "grind": 0},
-    {"day": "Tue", "school": 0, "personal": 0, "grind": 0},
-    {"day": "Wed", "school": 0, "personal": 0, "grind": 0},
-    {"day": "Thu", "school": 0, "personal": 0, "grind": 0},
-    {"day": "Fri", "school": 0, "personal": 0, "grind": 0},
-    {"day": "Sat", "school": 0, "personal": 0, "grind": 0},
-    {"day": "Sun", "school": 0, "personal": 0, "grind": 0}
+    {
+      "day": "Mon",
+      "school": 0,
+      "personal": 0,
+      "grind": 0
+    },
+    {
+      "day": "Tue",
+      "school": 0,
+      "personal": 0,
+      "grind": 0
+    },
+    {
+      "day": "Wed",
+      "school": 3,
+      "personal": 0,
+      "grind": 0
+    },
+    {
+      "day": "Thu",
+      "school": 0,
+      "personal": 0,
+      "grind": 0
+    },
+    {
+      "day": "Fri",
+      "school": 0,
+      "personal": 0,
+      "grind": 0
+    },
+    {
+      "day": "Sat",
+      "school": 0,
+      "personal": 0,
+      "grind": 0
+    },
+    {
+      "day": "Sun",
+      "school": 0,
+      "personal": 0,
+      "grind": 0
+    }
   ],
-  "byType": {"school": 0, "personal": 0, "grind": 0},
-  "last14Days": [0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-  "lastUpdated": "awaiting first sync"
+  "byType": {
+    "school": 3,
+    "personal": 0,
+    "grind": 0
+  },
+  "last14Days": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    3
+  ],
+  "lastUpdated": "2026-04-15T15:16:19.476204"
 }
