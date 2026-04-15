@@ -483,15 +483,28 @@ function render(data) {
   document.getElementById('streakCount').textContent = data.streak + '-day streak';
 }
 
-loadData().then(data => {
-  render(data);
+function updateSyncLabel(data) {
   if (data.lastUpdated && data.lastUpdated !== 'awaiting first sync') {
     const d = new Date(data.lastUpdated);
     document.getElementById('lastUpdated').textContent = 'synced ' + d.toLocaleString();
   } else {
     document.getElementById('lastUpdated').textContent = 'awaiting first sync from Notion';
   }
+}
+
+// Initial load
+loadData().then(data => {
+  render(data);
+  updateSyncLabel(data);
 });
+
+// Auto-refresh every 5 minutes
+setInterval(() => {
+  loadData().then(data => {
+    render(data);
+    updateSyncLabel(data);
+  });
+}, 5 * 60 * 1000);
 </script>
 </body>
 </html>
