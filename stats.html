@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Focus Stats Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: transparent;
+    color: #e8e4dc;
+  }
+
+  .dashboard {
+    background: linear-gradient(180deg, #1a1410, #1e1812);
+    border-radius: 16px;
+    padding: 1.5rem;
+    border: 1px solid rgba(201, 149, 107, 0.12);
+  }
+
+  .dash-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.25rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid rgba(201, 149, 107, 0.1);
+  }
+
+  .dash-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.1rem;
+    color: #c9956b;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .dash-period {
+    font-size: 0.7rem;
+    color: #6a6458;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* Stats Grid */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.75rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .stat-card {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(201, 149, 107, 0.08);
+    border-radius: 12px;
+    padding: 1rem;
+    text-align: center;
+    transition: border-color 0.3s ease;
+  }
+
+  .stat-card:hover {
+    border-color: rgba(201, 149, 107, 0.25);
+  }
+
+  .stat-icon {
+    font-size: 1.25rem;
+    margin-bottom: 0.35rem;
+  }
+
+  .stat-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.6rem;
+    font-weight: 500;
+    color: #f0e6d8;
+    line-height: 1.2;
+  }
+
+  .stat-label {
+    font-size: 0.65rem;
+    color: #7a7468;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-top: 0.2rem;
+  }
+
+  /* Chart Area */
+  .chart-section {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 0.75rem;
+  }
+
+  .chart-box {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(201, 149, 107, 0.08);
+    border-radius: 12px;
+    padding: 1rem;
+  }
+
+  .chart-title {
+    font-size: 0.7rem;
+    color: #7a7468;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+
+  /* Bar Chart */
+  .bar-chart {
+    display: flex;
+    align-items: flex-end;
+    gap: 6px;
+    height: 100px;
+    padding-top: 0.5rem;
+  }
+
+  .bar-group {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .bar {
+    width: 100%;
+    max-width: 32px;
+    border-radius: 4px 4px 0 0;
+    transition: height 1s cubic-bezier(0.16, 1, 0.3, 1);
+    position: relative;
+  }
+
+  .bar.school { background: linear-gradient(180deg, #5B8FB9, #3a6d94); }
+  .bar.personal { background: linear-gradient(180deg, #6DAA45, #4a7830); }
+  .bar.grind { background: linear-gradient(180deg, #D4785A, #b05a3e); }
+
+  .bar-label {
+    font-size: 0.55rem;
+    color: #6a6458;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* Donut Chart */
+  .donut-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .donut-wrapper {
+    position: relative;
+    width: 100px;
+    height: 100px;
+  }
+
+  .donut-wrapper svg {
+    transform: rotate(-90deg);
+  }
+
+  .donut-center {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .donut-center .value {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #f0e6d8;
+  }
+
+  .donut-center .label {
+    font-size: 0.55rem;
+    color: #7a7468;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .legend {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    width: 100%;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.65rem;
+    color: #a09a8f;
+  }
+
+  .legend-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .legend-dot.school { background: #5B8FB9; }
+  .legend-dot.personal { background: #6DAA45; }
+  .legend-dot.grind { background: #D4785A; }
+
+  /* Streak Section */
+  .streak-section {
+    margin-top: 0.75rem;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(201, 149, 107, 0.08);
+    border-radius: 12px;
+    padding: 0.75rem 1rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .streak-fire {
+    font-size: 1.5rem;
+  }
+
+  .streak-info {
+    flex: 1;
+  }
+
+  .streak-count {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #c9956b;
+  }
+
+  .streak-text {
+    font-size: 0.65rem;
+    color: #7a7468;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  .heatmap {
+    display: flex;
+    gap: 3px;
+    align-items: center;
+  }
+
+  .heat-cell {
+    width: 14px;
+    height: 14px;
+    border-radius: 3px;
+    background: rgba(201, 149, 107, 0.08);
+  }
+
+  .heat-cell.l1 { background: rgba(201, 149, 107, 0.15); }
+  .heat-cell.l2 { background: rgba(201, 149, 107, 0.3); }
+  .heat-cell.l3 { background: rgba(201, 149, 107, 0.5); }
+  .heat-cell.l4 { background: rgba(201, 149, 107, 0.75); }
+
+  @media (max-width: 500px) {
+    .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    .chart-section { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="dashboard">
+  <div class="dash-header">
+    <div class="dash-title">📊 Focus Analytics</div>
+    <div class="dash-period" id="period"></div>
+  </div>
+
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-icon">⚡</div>
+      <div class="stat-value" id="totalSessions">—</div>
+      <div class="stat-label">Sessions</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">⭐</div>
+      <div class="stat-value" id="avgRating">—</div>
+      <div class="stat-label">Avg Focus</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">🏆</div>
+      <div class="stat-value" id="flowStates">—</div>
+      <div class="stat-label">Flow States</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">🔥</div>
+      <div class="stat-value" id="streak">—</div>
+      <div class="stat-label">Day Streak</div>
+    </div>
+  </div>
+
+  <div class="chart-section">
+    <div class="chart-box">
+      <div class="chart-title">📈 Sessions This Week</div>
+      <div class="bar-chart" id="barChart"></div>
+    </div>
+    <div class="chart-box">
+      <div class="chart-title">🎯 By Type</div>
+      <div class="donut-container">
+        <div class="donut-wrapper">
+          <svg width="100" height="100" viewBox="0 0 100 100">
+            <circle cx="50" cy="50" r="38" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="12"/>
+            <circle id="donut-school" cx="50" cy="50" r="38" fill="none" stroke="#5B8FB9" stroke-width="12"
+              stroke-dasharray="0 239" stroke-linecap="round"/>
+            <circle id="donut-personal" cx="50" cy="50" r="38" fill="none" stroke="#6DAA45" stroke-width="12"
+              stroke-dasharray="0 239" stroke-linecap="round"/>
+            <circle id="donut-grind" cx="50" cy="50" r="38" fill="none" stroke="#D4785A" stroke-width="12"
+              stroke-dasharray="0 239" stroke-linecap="round"/>
+          </svg>
+          <div class="donut-center">
+            <div class="value" id="donutTotal">—</div>
+            <div class="label">total</div>
+          </div>
+        </div>
+        <div class="legend">
+          <div class="legend-item"><div class="legend-dot school"></div>School</div>
+          <div class="legend-item"><div class="legend-dot personal"></div>Personal</div>
+          <div class="legend-item"><div class="legend-dot grind"></div>Grind</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="streak-section">
+    <div class="streak-fire">🔥</div>
+    <div class="streak-info">
+      <div class="streak-count" id="streakCount">Keep going!</div>
+      <div class="streak-text">Last 14 Days Activity</div>
+    </div>
+    <div class="heatmap" id="heatmap"></div>
+  </div>
+</div>
+
+<script>
+// Demo data — replace with real Notion API data when connected
+const demoData = {
+  totalSessions: 24,
+  avgRating: 2.3,
+  flowStates: 8,
+  streak: 5,
+  weeklyByDay: [
+    { day: 'Mon', school: 2, personal: 1, grind: 0 },
+    { day: 'Tue', school: 1, personal: 0, grind: 1 },
+    { day: 'Wed', school: 3, personal: 1, grind: 0 },
+    { day: 'Thu', school: 1, personal: 2, grind: 1 },
+    { day: 'Fri', school: 2, personal: 0, grind: 0 },
+    { day: 'Sat', school: 0, personal: 2, grind: 2 },
+    { day: 'Sun', school: 0, personal: 1, grind: 1 },
+  ],
+  byType: { school: 12, personal: 7, grind: 5 },
+  last14Days: [0, 2, 1, 3, 0, 2, 4, 1, 0, 3, 2, 1, 2, 3]
+};
+
+function animateValue(el, target, suffix = '') {
+  let current = 0;
+  const step = target / 30;
+  const interval = setInterval(() => {
+    current += step;
+    if (current >= target) {
+      current = target;
+      clearInterval(interval);
+    }
+    el.textContent = (Number.isInteger(target) ? Math.round(current) : current.toFixed(1)) + suffix;
+  }, 30);
+}
+
+function render(data) {
+  // Period
+  const now = new Date();
+  const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  document.getElementById('period').textContent = monthNames[now.getMonth()] + ' ' + now.getFullYear();
+
+  // Stats
+  animateValue(document.getElementById('totalSessions'), data.totalSessions);
+  animateValue(document.getElementById('avgRating'), data.avgRating, '⭐');
+  animateValue(document.getElementById('flowStates'), data.flowStates);
+  animateValue(document.getElementById('streak'), data.streak);
+
+  // Bar chart
+  const barContainer = document.getElementById('barChart');
+  const maxVal = Math.max(...data.weeklyByDay.map(d => d.school + d.personal + d.grind), 1);
+  barContainer.innerHTML = '';
+
+  data.weeklyByDay.forEach((d, i) => {
+    const group = document.createElement('div');
+    group.className = 'bar-group';
+
+    const total = d.school + d.personal + d.grind;
+    const types = [
+      { cls: 'school', val: d.school },
+      { cls: 'personal', val: d.personal },
+      { cls: 'grind', val: d.grind }
+    ];
+
+    const barStack = document.createElement('div');
+    barStack.style.cssText = 'display:flex;flex-direction:column-reverse;align-items:center;gap:2px;width:100%;height:100px;justify-content:flex-start;';
+
+    types.forEach(t => {
+      if (t.val > 0) {
+        const bar = document.createElement('div');
+        bar.className = 'bar ' + t.cls;
+        bar.style.height = '0px';
+        bar.style.width = '100%';
+        bar.style.maxWidth = '32px';
+        bar.style.borderRadius = '4px';
+        barStack.appendChild(bar);
+        setTimeout(() => {
+          bar.style.height = ((t.val / maxVal) * 80) + 'px';
+        }, 100 + i * 80);
+      }
+    });
+
+    const label = document.createElement('div');
+    label.className = 'bar-label';
+    label.textContent = d.day;
+
+    group.appendChild(barStack);
+    group.appendChild(label);
+    barContainer.appendChild(group);
+  });
+
+  // Donut chart
+  const total = data.byType.school + data.byType.personal + data.byType.grind;
+  const circumference = 2 * Math.PI * 38; // ~238.76
+  document.getElementById('donutTotal').textContent = total;
+
+  const schoolPct = data.byType.school / total;
+  const personalPct = data.byType.personal / total;
+  const grindPct = data.byType.grind / total;
+
+  const schoolArc = schoolPct * circumference;
+  const personalArc = personalPct * circumference;
+  const grindArc = grindPct * circumference;
+
+  const schoolEl = document.getElementById('donut-school');
+  const personalEl = document.getElementById('donut-personal');
+  const grindEl = document.getElementById('donut-grind');
+
+  setTimeout(() => {
+    schoolEl.style.transition = 'stroke-dasharray 1s ease';
+    schoolEl.setAttribute('stroke-dasharray', `${schoolArc} ${circumference}`);
+    schoolEl.setAttribute('stroke-dashoffset', '0');
+
+    personalEl.style.transition = 'stroke-dasharray 1s ease 0.2s';
+    personalEl.setAttribute('stroke-dasharray', `${personalArc} ${circumference}`);
+    personalEl.setAttribute('stroke-dashoffset', `-${schoolArc}`);
+
+    grindEl.style.transition = 'stroke-dasharray 1s ease 0.4s';
+    grindEl.setAttribute('stroke-dasharray', `${grindArc} ${circumference}`);
+    grindEl.setAttribute('stroke-dashoffset', `-${schoolArc + personalArc}`);
+  }, 300);
+
+  // Heatmap
+  const heatmap = document.getElementById('heatmap');
+  heatmap.innerHTML = '';
+  data.last14Days.forEach((v, i) => {
+    const cell = document.createElement('div');
+    cell.className = 'heat-cell' + (v === 0 ? '' : v <= 1 ? ' l1' : v <= 2 ? ' l2' : v <= 3 ? ' l3' : ' l4');
+    cell.title = `${14 - i} days ago: ${v} sessions`;
+    cell.style.opacity = '0';
+    cell.style.transition = 'opacity 0.3s ease';
+    heatmap.appendChild(cell);
+    setTimeout(() => { cell.style.opacity = '1'; }, 50 * i);
+  });
+
+  document.getElementById('streakCount').textContent = data.streak + '-day streak';
+}
+
+render(demoData);
+</script>
+</body>
+</html>

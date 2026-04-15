@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Focus Quote</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: transparent;
+  }
+
+  .quote-card {
+    background: linear-gradient(135deg, #1a1410, #221a12);
+    border-radius: 16px;
+    padding: 2rem 2.5rem;
+    border: 1px solid rgba(201, 149, 107, 0.1);
+    position: relative;
+    overflow: hidden;
+    min-height: 120px;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    transition: border-color 0.3s ease;
+  }
+
+  .quote-card:hover {
+    border-color: rgba(201, 149, 107, 0.25);
+  }
+
+  /* Decorative quotation marks */
+  .quote-mark {
+    position: absolute;
+    font-family: 'Playfair Display', serif;
+    font-size: 8rem;
+    color: rgba(201, 149, 107, 0.06);
+    line-height: 1;
+    pointer-events: none;
+  }
+
+  .quote-mark.open { top: -0.5rem; left: 1rem; }
+  .quote-mark.close { bottom: -2.5rem; right: 1rem; }
+
+  .quote-content {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    text-align: center;
+  }
+
+  .quote-text {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-size: clamp(1rem, 2vw, 1.3rem);
+    color: #e8e4dc;
+    line-height: 1.6;
+    margin-bottom: 0.75rem;
+    opacity: 1;
+    transition: opacity 0.5s ease;
+  }
+
+  .quote-text.fading { opacity: 0; }
+
+  .quote-author {
+    font-size: 0.75rem;
+    color: #8a7d6f;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    font-weight: 300;
+    opacity: 1;
+    transition: opacity 0.5s ease;
+  }
+
+  .quote-author.fading { opacity: 0; }
+
+  .quote-author::before {
+    content: '— ';
+    color: #c9956b;
+  }
+
+  .refresh-hint {
+    position: absolute;
+    bottom: 0.5rem;
+    right: 0.75rem;
+    font-size: 0.55rem;
+    color: #4a4640;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  .quote-card:hover .refresh-hint {
+    opacity: 1;
+  }
+
+  /* Ambient glow */
+  .quote-card::before {
+    content: '';
+    position: absolute;
+    width: 150px;
+    height: 150px;
+    background: radial-gradient(circle, rgba(201, 149, 107, 0.08) 0%, transparent 70%);
+    top: -50px;
+    left: -30px;
+    border-radius: 50%;
+  }
+</style>
+</head>
+<body>
+<div class="quote-card" onclick="nextQuote()">
+  <div class="quote-mark open">"</div>
+  <div class="quote-mark close">"</div>
+  <div class="quote-content">
+    <div class="quote-text" id="quoteText"></div>
+    <div class="quote-author" id="quoteAuthor"></div>
+  </div>
+  <div class="refresh-hint">click to refresh ↻</div>
+</div>
+
+<script>
+const quotes = [
+  { text: "Deep work is the ability to focus without distraction on a cognitively demanding task.", author: "Cal Newport" },
+  { text: "The key is not to prioritize what's on your schedule, but to schedule your priorities.", author: "Stephen Covey" },
+  { text: "Focus is a matter of deciding what things you're not going to do.", author: "John Carmack" },
+  { text: "It is during our darkest moments that we must focus to see the light.", author: "Aristotle" },
+  { text: "Concentrate all your thoughts upon the work at hand. The sun's rays do not burn until brought to a focus.", author: "Alexander Graham Bell" },
+  { text: "The successful warrior is the average man, with laser-like focus.", author: "Bruce Lee" },
+  { text: "You can always find a distraction if you're looking for one.", author: "Tom Kite" },
+  { text: "Lack of direction, not lack of time, is the problem. We all have twenty-four hour days.", author: "Zig Ziglar" },
+  { text: "Where focus goes, energy flows.", author: "Tony Robbins" },
+  { text: "Do not dwell in the past, do not dream of the future, concentrate the mind on the present moment.", author: "Buddha" },
+  { text: "The main thing is to keep the main thing the main thing.", author: "Stephen Covey" },
+  { text: "Your focus determines your reality.", author: "Qui-Gon Jinn" },
+  { text: "Starve your distractions, feed your focus.", author: "Daniel Goleman" },
+  { text: "Action is the foundational key to all success.", author: "Pablo Picasso" },
+  { text: "The way to get started is to quit talking and begin doing.", author: "Walt Disney" },
+  { text: "I fear not the man who has practiced 10,000 kicks once, but the man who has practiced one kick 10,000 times.", author: "Bruce Lee" },
+  { text: "Amateurs sit and wait for inspiration, the rest of us just get up and go to work.", author: "Stephen King" },
+  { text: "You don't have to be great to start, but you have to start to be great.", author: "Zig Ziglar" }
+];
+
+let currentIndex = Math.floor(Math.random() * quotes.length);
+
+function showQuote(index) {
+  const textEl = document.getElementById('quoteText');
+  const authorEl = document.getElementById('quoteAuthor');
+  textEl.textContent = quotes[index].text;
+  authorEl.textContent = quotes[index].author;
+}
+
+function nextQuote() {
+  const textEl = document.getElementById('quoteText');
+  const authorEl = document.getElementById('quoteAuthor');
+
+  textEl.classList.add('fading');
+  authorEl.classList.add('fading');
+
+  setTimeout(() => {
+    currentIndex = (currentIndex + 1) % quotes.length;
+    showQuote(currentIndex);
+    textEl.classList.remove('fading');
+    authorEl.classList.remove('fading');
+  }, 500);
+}
+
+showQuote(currentIndex);
+
+// Auto-rotate every 30 seconds
+setInterval(nextQuote, 30000);
+</script>
+</body>
+</html>

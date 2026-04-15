@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Focus Ledger Banner</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: transparent;
+    overflow: hidden;
+  }
+
+  .banner {
+    position: relative;
+    width: 100%;
+    min-height: 180px;
+    background: linear-gradient(135deg, #1a1410 0%, #2a1f16 30%, #1e1812 60%, #24180f 100%);
+    border-radius: 16px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    padding: 2rem 2.5rem;
+  }
+
+  /* Ambient glow orbs */
+  .banner::before {
+    content: '';
+    position: absolute;
+    width: 300px;
+    height: 300px;
+    background: radial-gradient(circle, rgba(201, 149, 107, 0.15) 0%, transparent 70%);
+    top: -100px;
+    right: -50px;
+    border-radius: 50%;
+    animation: float 8s ease-in-out infinite;
+  }
+
+  .banner::after {
+    content: '';
+    position: absolute;
+    width: 200px;
+    height: 200px;
+    background: radial-gradient(circle, rgba(180, 120, 80, 0.1) 0%, transparent 70%);
+    bottom: -80px;
+    left: 20%;
+    border-radius: 50%;
+    animation: float 10s ease-in-out infinite reverse;
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0) scale(1); }
+    50% { transform: translateY(-20px) scale(1.05); }
+  }
+
+  /* Candle flicker effect */
+  .candle-glow {
+    position: absolute;
+    top: 20px;
+    left: 30px;
+    width: 6px;
+    height: 6px;
+    background: #f0b860;
+    border-radius: 50%;
+    box-shadow: 0 0 20px 10px rgba(240, 184, 96, 0.3), 0 0 60px 20px rgba(240, 184, 96, 0.1);
+    animation: flicker 3s ease-in-out infinite;
+  }
+
+  @keyframes flicker {
+    0%, 100% { opacity: 0.8; transform: scale(1); }
+    25% { opacity: 1; transform: scale(1.1); }
+    50% { opacity: 0.7; transform: scale(0.95); }
+    75% { opacity: 0.9; transform: scale(1.05); }
+  }
+
+  /* Floating particles */
+  .particles {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+  }
+
+  .particle {
+    position: absolute;
+    width: 2px;
+    height: 2px;
+    background: rgba(201, 149, 107, 0.3);
+    border-radius: 50%;
+    animation: rise linear infinite;
+  }
+
+  .particle:nth-child(1) { left: 10%; animation-duration: 12s; animation-delay: 0s; }
+  .particle:nth-child(2) { left: 25%; animation-duration: 15s; animation-delay: 2s; }
+  .particle:nth-child(3) { left: 45%; animation-duration: 10s; animation-delay: 4s; }
+  .particle:nth-child(4) { left: 65%; animation-duration: 13s; animation-delay: 1s; }
+  .particle:nth-child(5) { left: 80%; animation-duration: 11s; animation-delay: 3s; }
+  .particle:nth-child(6) { left: 90%; animation-duration: 14s; animation-delay: 5s; }
+
+  @keyframes rise {
+    0% { bottom: -10px; opacity: 0; }
+    10% { opacity: 0.6; }
+    90% { opacity: 0.2; }
+    100% { bottom: 100%; opacity: 0; }
+  }
+
+  .content {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    width: 100%;
+  }
+
+  .icon-area {
+    flex-shrink: 0;
+    width: 64px;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(201, 149, 107, 0.1);
+    border: 1px solid rgba(201, 149, 107, 0.2);
+    border-radius: 16px;
+    font-size: 2rem;
+  }
+
+  .text-area {
+    flex: 1;
+  }
+
+  .title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.5rem, 3vw, 2.2rem);
+    font-weight: 700;
+    color: #f0e6d8;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+    margin-bottom: 0.35rem;
+  }
+
+  .title span {
+    background: linear-gradient(135deg, #f0e6d8, #c9956b);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .subtitle {
+    font-size: clamp(0.8rem, 1.5vw, 0.95rem);
+    color: #a09a8f;
+    font-weight: 300;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  .date-area {
+    flex-shrink: 0;
+    text-align: right;
+    font-size: 0.8rem;
+    color: #8a8378;
+    line-height: 1.6;
+  }
+
+  .date-area .day {
+    font-family: 'Playfair Display', serif;
+    font-size: 2rem;
+    font-weight: 700;
+    color: #c9956b;
+    line-height: 1;
+  }
+
+  .date-area .month {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: #a09a8f;
+  }
+
+  /* Decorative line */
+  .line {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, rgba(201, 149, 107, 0.4), transparent);
+  }
+</style>
+</head>
+<body>
+<div class="banner">
+  <div class="candle-glow"></div>
+  <div class="particles">
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+  </div>
+  <div class="content">
+    <div class="icon-area">🕯️</div>
+    <div class="text-area">
+      <div class="title"><span>Focus Ledger</span></div>
+      <div class="subtitle">deep work sanctuary</div>
+    </div>
+    <div class="date-area">
+      <div class="day" id="day"></div>
+      <div class="month" id="month"></div>
+      <div class="time" id="time"></div>
+    </div>
+  </div>
+  <div class="line"></div>
+</div>
+
+<script>
+function updateDate() {
+  const now = new Date();
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  document.getElementById('day').textContent = now.getDate();
+  document.getElementById('month').textContent = months[now.getMonth()] + ' ' + now.getFullYear();
+  document.getElementById('time').textContent = days[now.getDay()] + ' · ' + now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+}
+updateDate();
+setInterval(updateDate, 60000);
+</script>
+</body>
+</html>

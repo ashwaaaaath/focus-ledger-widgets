@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Focus Timer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: transparent;
+  }
+
+  .timer-widget {
+    background: linear-gradient(135deg, #1a1410, #1e1812);
+    border-radius: 16px;
+    padding: 1.75rem 2rem;
+    border: 1px solid rgba(201, 149, 107, 0.12);
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Ambient background pulse when running */
+  .timer-widget.running::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at center, rgba(201, 149, 107, 0.04) 0%, transparent 70%);
+    animation: breathe 4s ease-in-out infinite;
+  }
+
+  @keyframes breathe {
+    0%, 100% { opacity: 0.5; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.05); }
+  }
+
+  /* Ring progress */
+  .ring-container {
+    position: relative;
+    width: 100px;
+    height: 100px;
+    flex-shrink: 0;
+  }
+
+  .ring-container svg {
+    transform: rotate(-90deg);
+  }
+
+  .ring-bg {
+    fill: none;
+    stroke: rgba(201, 149, 107, 0.08);
+    stroke-width: 6;
+  }
+
+  .ring-progress {
+    fill: none;
+    stroke: #c9956b;
+    stroke-width: 6;
+    stroke-linecap: round;
+    transition: stroke-dashoffset 1s linear;
+    filter: drop-shadow(0 0 6px rgba(201, 149, 107, 0.3));
+  }
+
+  .ring-time {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .time-display {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.4rem;
+    font-weight: 500;
+    color: #f0e6d8;
+    letter-spacing: 0.05em;
+  }
+
+  .time-label {
+    font-size: 0.55rem;
+    color: #7a7468;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-top: 0.1rem;
+  }
+
+  /* Controls */
+  .controls {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    position: relative;
+    z-index: 1;
+  }
+
+  .mode-selector {
+    display: flex;
+    gap: 0.35rem;
+  }
+
+  .mode-btn {
+    padding: 0.35rem 0.75rem;
+    border-radius: 8px;
+    border: 1px solid rgba(201, 149, 107, 0.15);
+    background: rgba(255, 255, 255, 0.03);
+    color: #8a8378;
+    font-size: 0.7rem;
+    font-family: 'Inter', sans-serif;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    letter-spacing: 0.03em;
+  }
+
+  .mode-btn:hover {
+    border-color: rgba(201, 149, 107, 0.3);
+    color: #c9956b;
+  }
+
+  .mode-btn.active {
+    background: rgba(201, 149, 107, 0.12);
+    border-color: rgba(201, 149, 107, 0.35);
+    color: #c9956b;
+  }
+
+  .action-row {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .action-btn {
+    flex: 1;
+    padding: 0.5rem;
+    border-radius: 10px;
+    border: none;
+    font-size: 0.75rem;
+    font-family: 'Inter', sans-serif;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    letter-spacing: 0.03em;
+  }
+
+  .btn-start {
+    background: linear-gradient(135deg, #c9956b, #a87a52);
+    color: #1a1410;
+  }
+
+  .btn-start:hover {
+    background: linear-gradient(135deg, #d4a57a, #b88960);
+    transform: translateY(-1px);
+  }
+
+  .btn-pause {
+    background: rgba(201, 149, 107, 0.15);
+    color: #c9956b;
+    border: 1px solid rgba(201, 149, 107, 0.2);
+  }
+
+  .btn-reset {
+    flex: 0;
+    padding: 0.5rem 0.75rem;
+    background: rgba(255, 255, 255, 0.05);
+    color: #6a6458;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 10px;
+    font-size: 0.75rem;
+    font-family: 'Inter', sans-serif;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .btn-reset:hover {
+    color: #a09a8f;
+    border-color: rgba(255, 255, 255, 0.12);
+  }
+
+  .session-info {
+    font-size: 0.6rem;
+    color: #5a554e;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .session-info span {
+    color: #8a7d6f;
+  }
+
+  /* Completion flash */
+  @keyframes flash {
+    0%, 100% { background: linear-gradient(135deg, #1a1410, #1e1812); }
+    50% { background: linear-gradient(135deg, #2a1f16, #352818); }
+  }
+
+  .timer-widget.complete {
+    animation: flash 1s ease 3;
+  }
+</style>
+</head>
+<body>
+<div class="timer-widget" id="timerWidget">
+  <div class="ring-container">
+    <svg width="100" height="100" viewBox="0 0 100 100">
+      <circle class="ring-bg" cx="50" cy="50" r="42"/>
+      <circle class="ring-progress" id="ringProgress" cx="50" cy="50" r="42"
+        stroke-dasharray="263.89" stroke-dashoffset="0"/>
+    </svg>
+    <div class="ring-time">
+      <div class="time-display" id="timeDisplay">25:00</div>
+      <div class="time-label" id="timeLabel">focus</div>
+    </div>
+  </div>
+
+  <div class="controls">
+    <div class="mode-selector">
+      <button class="mode-btn active" data-minutes="25" data-label="focus" onclick="setMode(this)">25 min</button>
+      <button class="mode-btn" data-minutes="45" data-label="deep work" onclick="setMode(this)">45 min</button>
+      <button class="mode-btn" data-minutes="90" data-label="ultra" onclick="setMode(this)">90 min</button>
+      <button class="mode-btn" data-minutes="5" data-label="break" onclick="setMode(this)">Break</button>
+    </div>
+    <div class="action-row">
+      <button class="action-btn btn-start" id="startBtn" onclick="toggleTimer()">Start Focus</button>
+      <button class="btn-reset" onclick="resetTimer()">↺</button>
+    </div>
+    <div class="session-info">
+      Sessions today: <span id="sessionCount">0</span> · Total focus: <span id="totalFocus">0m</span>
+    </div>
+  </div>
+</div>
+
+<script>
+let totalSeconds = 25 * 60;
+let remainingSeconds = totalSeconds;
+let isRunning = false;
+let interval = null;
+let sessionsToday = 0;
+let totalFocusMinutes = 0;
+const circumference = 2 * Math.PI * 42;
+
+const ring = document.getElementById('ringProgress');
+const display = document.getElementById('timeDisplay');
+const label = document.getElementById('timeLabel');
+const startBtn = document.getElementById('startBtn');
+const widget = document.getElementById('timerWidget');
+
+function updateDisplay() {
+  const m = Math.floor(remainingSeconds / 60);
+  const s = remainingSeconds % 60;
+  display.textContent = String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
+
+  const progress = (totalSeconds - remainingSeconds) / totalSeconds;
+  ring.style.strokeDashoffset = circumference * (1 - progress);
+}
+
+function toggleTimer() {
+  if (isRunning) {
+    clearInterval(interval);
+    isRunning = false;
+    startBtn.textContent = 'Resume';
+    startBtn.className = 'action-btn btn-start';
+    widget.classList.remove('running');
+  } else {
+    isRunning = true;
+    startBtn.textContent = 'Pause';
+    startBtn.className = 'action-btn btn-pause';
+    widget.classList.add('running');
+
+    interval = setInterval(() => {
+      remainingSeconds--;
+      if (remainingSeconds <= 0) {
+        clearInterval(interval);
+        isRunning = false;
+        remainingSeconds = 0;
+        sessionsToday++;
+        totalFocusMinutes += Math.round(totalSeconds / 60);
+        document.getElementById('sessionCount').textContent = sessionsToday;
+        document.getElementById('totalFocus').textContent = totalFocusMinutes + 'm';
+        startBtn.textContent = 'Done ✓';
+        startBtn.className = 'action-btn btn-start';
+        widget.classList.remove('running');
+        widget.classList.add('complete');
+        setTimeout(() => widget.classList.remove('complete'), 3000);
+      }
+      updateDisplay();
+    }, 1000);
+  }
+}
+
+function resetTimer() {
+  clearInterval(interval);
+  isRunning = false;
+  remainingSeconds = totalSeconds;
+  startBtn.textContent = 'Start Focus';
+  startBtn.className = 'action-btn btn-start';
+  widget.classList.remove('running');
+  updateDisplay();
+}
+
+function setMode(btn) {
+  document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  totalSeconds = parseInt(btn.dataset.minutes) * 60;
+  label.textContent = btn.dataset.label;
+  resetTimer();
+}
+
+updateDisplay();
+</script>
+</body>
+</html>
