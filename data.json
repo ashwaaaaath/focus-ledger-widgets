@@ -1,8 +1,8 @@
 {
-  "totalSessions": 3,
+  "totalSessions": 1,
   "avgRating": 0,
   "flowStates": 0,
-  "streak": 0,
+  "streak": 1,
   "weeklyByDay": [
     {
       "day": "Mon",
@@ -18,13 +18,13 @@
     },
     {
       "day": "Wed",
-      "school": 3,
+      "school": 0,
       "personal": 0,
       "grind": 0
     },
     {
       "day": "Thu",
-      "school": 0,
+      "school": 1,
       "personal": 0,
       "grind": 0
     },
@@ -48,7 +48,7 @@
     }
   ],
   "byType": {
-    "school": 3,
+    "school": 1,
     "personal": 0,
     "grind": 0
   },
@@ -65,8 +65,8 @@
     0,
     0,
     0,
-    3,
-    0
+    0,
+    1
   ],
-  "lastUpdated": "2026-04-16T02:11:23.683848"
+  "lastUpdated": "2026-04-16T05:16:07.651490"
 }
