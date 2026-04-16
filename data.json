@@ -1,5 +1,5 @@
 {
-  "totalSessions": 1,
+  "totalSessions": 2,
   "avgRating": 0,
   "flowStates": 0,
   "streak": 1,
@@ -24,7 +24,7 @@
     },
     {
       "day": "Thu",
-      "school": 1,
+      "school": 2,
       "personal": 0,
       "grind": 0
     },
@@ -48,7 +48,7 @@
     }
   ],
   "byType": {
-    "school": 1,
+    "school": 2,
     "personal": 0,
     "grind": 0
   },
@@ -66,7 +66,7 @@
     0,
     0,
     0,
-    1
+    2
   ],
-  "lastUpdated": "2026-04-16T05:16:07.651490"
+  "lastUpdated": "2026-04-16T07:09:21.409158"
 }
