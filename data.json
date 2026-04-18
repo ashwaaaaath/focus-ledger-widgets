@@ -2,7 +2,7 @@
   "totalSessions": 2,
   "avgRating": 0,
   "flowStates": 0,
-  "streak": 2,
+  "streak": 0,
   "weeklyByDay": [
     {
       "day": "Mon",
@@ -64,9 +64,9 @@
     0,
     0,
     0,
-    0,
     1,
-    1
+    1,
+    0
   ],
-  "lastUpdated": "2026-04-17T23:35:24.020372"
+  "lastUpdated": "2026-04-18T01:58:35.160388"
 }
