@@ -24,13 +24,13 @@
     },
     {
       "day": "Thu",
-      "school": 1,
+      "school": 0,
       "personal": 0,
       "grind": 0
     },
     {
       "day": "Fri",
-      "school": 1,
+      "school": 0,
       "personal": 0,
       "grind": 0
     },
@@ -62,11 +62,11 @@
     0,
     0,
     0,
+    1,
+    1,
     0,
-    1,
-    1,
     0,
     0
   ],
-  "lastUpdated": "2026-04-19T23:32:12.918620"
+  "lastUpdated": "2026-04-20T02:12:10.928163"
 }
